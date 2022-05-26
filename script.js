@@ -1,41 +1,45 @@
 async function weather() {
 
 
-    let link = '';
     
     navigator.geolocation.getCurrentPosition(showPosition);
 
     async function showPosition(position) {
-        //posit.innerHTML = "Latitude: " + position.coords.latitude + "<br>Longitude: " + position.coords.longitude;
-        linkTemp = "https://api.open-meteo.com/v1/forecast?latitude=" + position.coords.latitude + "&longitude=" + position.coords.longitude + "&current_weather=true";
-        linkLoc = "https://nominatim.openstreetmap.org/reverse?lat=" + position.coords.latitude + "&lon=" + position.coords.longitude + "&format=json";
+        const linkTemp = `https://api.open-meteo.com/v1/forecast?latitude=${position.coords.latitude}&longitude=${position.coords.longitude}&current_weather=true`;
+        const linkLoc = `https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json`;
 
         const response = await fetch(linkTemp);
-        const data = await response.json();
+        const weatherData = await response.json();
 
-        const response2 = await fetch(linkLoc);
+        const response2 = await fetch(linkLoc, {
+            headers: {
+                "Accept-Language": "en-US"
+            }
+        });
         const location = await response2.json();
-        console.log(location);
 
-        let temp = document.getElementById('temp');
-        temp.innerHTML = data.current_weather.temperature + '&#8451';
+        const locationText = document.getElementById('loc');
+        locationText.innerHTML = `${location.address.city}, ${location.address.country}` ;
 
-        let code = document.getElementById('weatherCode');
-        let icon = document.getElementById('weatherIcon');
+        const temp = document.getElementById('temp');
+        temp.innerHTML = weatherData.current_weather.temperature + '&#8451';
 
-        switch(data.current_weather.weathercode) {
+        const text = document.getElementById('weatherText');
+        const icon = document.getElementById('weatherIcon');
+
+        switch(weatherData.current_weather.weathercode) {
             case 0:
-                code.innerHTML = "Clear sky";
+                text.innerHTML = "Clear sky";
                 icon.innerHTML = '<i class="fa-regular fa-sun"></i>';
             case 1:
             case 2:
             case 3:
-                code.innerHTML = "Mainly clear, partly cloudy";
+                text.innerHTML = "Mainly clear, partly cloudy";
                 icon.innerHTML = '<i class="fa-solid fa-cloud-sun"></i>';
                 break;
             case 45:
             case 48: 
-                code.innerHTML = "Fog";
+                text.innerHTML = "Fog";
                 icon.innerHTML = '<i class="fa-solid fa-smog"></i>'
                 break;
             case 51:
@@ -43,7 +47,7 @@ async function weather() {
             case 55:
             case 56:
             case 57:
-                code.innerHTML = "Drizzle";
+                text.innerHTML = "Drizzle";
                 icon.innerHTML = '<i class="fa-solid fa-cloud-rain"></i>';
                 break;
             case 61:
@@ -51,31 +55,31 @@ async function weather() {
             case 65:
             case 66:
             case 67:
-                code.innerHTML = "Rain";
+                text.innerHTML = "Rain";
                 icon.innerHTML = '<i class="fa-solid fa-cloud-showers-heavy"></i>';
                 break;
             case 71:
             case 73:
             case 75:
             case 77:
-                code.innerHTML = "Snow";
+                text.innerHTML = "Snow";
                 icon.innerHTML = '<i class="fa-solid fa-snowflake"></i>';
                 break;
             case 80:
             case 81:
             case 82:
-                code.innerHTML = "Rain showers";
+                text.innerHTML = "Rain showers";
                 icon.innerHTML = '<i class="fa-solid fa-cloud-showers-heavy"></i>';
                 break;
             case 85:
             case 86:
-                code.innerHTML = "Snow showers";
+                text.innerHTML = "Snow showers";
                 icon.innerHTML = '<i class="fa-solid fa-snowflake"></i>';
                 break;
             case 95:
             case 96:
             case 99:
-                code.innerHTML = "Thunderstorm";
+                text.innerHTML = "Thunderstorm";
                 icon.innerHTML = '<i class="fa-solid fa-cloud-bolt"></i>';
                 break;
         }
@@ -83,14 +87,14 @@ async function weather() {
         const fullDate = new Date();
         const time = fullDate.getHours();
 
-        const back = document.getElementById('weatherWindow');
+        const bg = document.getElementById('weatherWindow');
         
-        if (time > 5 && time < 12) {
-            back.className = 'morning';
+        if (time > 5 && time <= 12) {
+            bg.className = 'morning';
         } else if (time > 12 && time < 18) {
-            back.className = 'day';
+            bg.className = 'day';
         } else {
-            back.className = 'night'
+            bg.className = 'night'
         }
     }
 
